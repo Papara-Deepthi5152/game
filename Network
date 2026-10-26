@@ -1,0 +1,236 @@
+# ==============================================================================
+# OPERATION BLACKOUT: Interactive Playfair Cipher System with 10 Random Riddles
+# Presented By: Papara Deepthi | Registration Number: 23MIS1154
+# ==============================================================================
+
+import random
+
+class PlayfairEngine:
+    def __init__(self, key: str):
+        self.key = key.upper().replace('J', 'I')
+        self.matrix = self._build_matrix()
+        self.pos_dict = {self.matrix[r][c]: (r, c) for r in range(5) for c in range(5)}
+
+    def _build_matrix(self):
+        alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+        used = []
+        for char in self.key + alphabet:
+            if char.isalpha() and char not in used:
+                used.append(char)
+        return [used[i:i+5] for i in range(0, 25, 5)]
+
+    def print_matrix(self):
+        print("\n--- 5x5 PLAYFAIR KEY MATRIX ---")
+        for r, row in enumerate(self.matrix):
+            print(f"  Row {r}:  " + "  ".join(row))
+        print("-------------------------------\n")
+
+    def _prepare_cipher_pairs(self, raw_c: str):
+        clean = "".join([c.upper() for c in raw_c if c.isalpha()]).replace('J', 'I')
+        if len(clean) % 2 != 0:
+            clean += 'X'
+        return [clean[k:k+2] for k in range(0, len(clean), 2)]
+
+    def decrypt_with_steps(self, ciphertext: str):
+        c_pairs = self._prepare_cipher_pairs(ciphertext)
+        plaintext_pairs = []
+
+        print("=" * 65)
+        print(" 🔓 STEP-BY-STEP DECRYPTION CONVERSION PROCESS")
+        print("=" * 65)
+
+        for idx, pair in enumerate(c_pairs, 1):
+            a, b = pair[0], pair[1]
+            r1, c1 = self.pos_dict[a]
+            r2, c2 = self.pos_dict[b]
+
+            if r1 == r2:
+                dec_a = self.matrix[r1][(c1 - 1) % 5]
+                dec_b = self.matrix[r2][(c2 - 1) % 5]
+                rule = "Same Row -> Shift Left"
+            elif c1 == c2:
+                dec_a = self.matrix[(r1 - 1) % 5][c1]
+                dec_b = self.matrix[(r2 - 1) % 5][c2]
+                rule = "Same Column -> Shift Up"
+            else:
+                dec_a = self.matrix[r1][c2]
+                dec_b = self.matrix[r2][c1]
+                rule = "Rectangle Rule -> Swap opposite horizontal corners"
+
+            p_pair = dec_a + dec_b
+            plaintext_pairs.append(p_pair)
+            print(f"Pair {idx:02d} [{a}{b}]: Pos('{a}')=(R{r1},C{c1}), Pos('{b}')=(R{r2},C{c2})")
+            print(f"        └ Rule: {rule} ---> Decrypted Pair: [{p_pair}]")
+
+        print("=" * 65)
+        return "".join(plaintext_pairs), plaintext_pairs
+
+    def re_encrypt_pairs(self, plaintext_pairs: list):
+        ciphertext_pairs = []
+
+        print("=" * 65)
+        print(" 🔒 STEP-BY-STEP ENCRYPTION CONVERSION PROCESS")
+        print("=" * 65)
+
+        for idx, pair in enumerate(plaintext_pairs, 1):
+            a, b = pair[0], pair[1]
+            r1, c1 = self.pos_dict[a]
+            r2, c2 = self.pos_dict[b]
+
+            if r1 == r2:
+                enc_a = self.matrix[r1][(c1 + 1) % 5]
+                enc_b = self.matrix[r2][(c2 + 1) % 5]
+                rule = "Same Row -> Shift Right"
+            elif c1 == c2:
+                enc_a = self.matrix[(r1 + 1) % 5][c1]
+                enc_b = self.matrix[(r2 + 1) % 5][c2]
+                rule = "Same Column -> Shift Down"
+            else:
+                enc_a = self.matrix[r1][c2]
+                enc_b = self.matrix[r2][c1]
+                rule = "Rectangle Rule -> Swap opposite horizontal corners"
+
+            c_pair = enc_a + enc_b
+            ciphertext_pairs.append(c_pair)
+            print(f"Pair {idx:02d} [{a}{b}]: Pos('{a}')=(R{r1},C{c1}), Pos('{b}')=(R{r2},C{c2})")
+            print(f"        └ Rule: {rule} ---> Encrypted Pair: [{c_pair}]")
+
+        full_ciphertext = " ".join(ciphertext_pairs)
+        print("=" * 65)
+        return full_ciphertext
+
+
+# ==============================================================================
+# EXPANDED BANK OF 10 INTEL RIDDLES
+# ==============================================================================
+RIDDLE_BANK = [
+    {
+        "riddle": "🧩 INTEL RIDDLE 1: 'The ancient art of secret writing or hidden codes.' (6 Letters)",
+        "answer": "CIPHER"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 2: 'The complete absence of power, light, or facility visibility.' (8 Letters)",
+        "answer": "BLACKOUT"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 3: 'The action of breaking free from confinement or control.' (6 Letters)",
+        "answer": "ESCAPE"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 4: 'A secret word or phrase used to gain access to a secure facility.' (8 Letters)",
+        "answer": "PASSWORD"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 5: 'A reinforced underground shelter built to protect personnel from attack.' (6 Letters)",
+        "answer": "BUNKER"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 6: 'An undercover secret agent gathering intelligence behind enemy lines.' (3 Letters)",
+        "answer": "SPY"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 7: 'A state of operational readiness enforcing strict access restriction.' (8 Letters)",
+        "answer": "LOCKDOWN"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 8: 'A mathematical algorithm used for scrambling and unscrambling data.' (6 Letters)",
+        "answer": "MATRIX"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 9: 'The process of translating encrypted code back into readable plain text.' (6 Letters)",
+        "answer": "DECODE"
+    },
+    {
+        "riddle": "🧩 INTEL RIDDLE 10: 'A high-security military zone shrouded in complete secrecy.' (6 Letters)",
+        "answer": "SECTOR"
+    }
+]
+
+
+# ==============================================================================
+# MAIN USER INPUT PROTOCOL
+# ==============================================================================
+def run_sector_protocol(sector_num, sector_name, riddle_pool):
+    print("\n" + "=" * 65)
+    print(f" 🚨 SECURITY SECTOR {sector_num} / 3: {sector_name}")
+    print("=" * 65)
+
+    # Randomly select a riddle from the remaining pool for Sectors 2 & 3
+    if sector_num > 1 and riddle_pool:
+        selected_puzzle = random.choice(riddle_pool)
+        riddle_pool.remove(selected_puzzle)  # Avoid repeating the same riddle
+        
+        print("\n" + "💡 " * 15)
+        print("CLASSIFIED INTEL DOSSIER INTERCEPTED:")
+        print(f" {selected_puzzle['riddle']}")
+        print(f" (Deductive Keyword Answer: {selected_puzzle['answer']})")
+        print("💡 " * 15 + "\n")
+
+    # 1. Keyword Input
+    user_key = ""
+    while not user_key:
+        user_key = input(f"👉 Enter Secret Keyword for Sector {sector_num}: ").strip().upper()
+        if not user_key:
+            print("❌ Keyword cannot be empty.")
+
+    engine = PlayfairEngine(user_key)
+    engine.print_matrix()
+
+    # 2. Ciphertext Input
+    raw_user_cipher = ""
+    while not raw_user_cipher:
+        raw_user_cipher = input(f"👉 Enter Ciphertext to Decrypt for Sector {sector_num}: ").strip().upper()
+        if not raw_user_cipher:
+            print("❌ Ciphertext cannot be empty.")
+
+    formatted_user_cipher = " ".join([raw_user_cipher.replace(" ", "")[i:i+2] for i in range(0, len(raw_user_cipher.replace(" ", "")), 2)])
+
+    # 3. Decrypt
+    decrypted_str, decrypted_pairs = engine.decrypt_with_steps(raw_user_cipher)
+    print(f"\n🔓 FINAL DECRYPTED OVERRIDE PHRASE: {decrypted_str}")
+    print("=" * 65)
+
+    # 4. ENCRYPTION OPTION
+    print("\n---------------------------------------------------------")
+    print(" OPTIONS:")
+    print("  [1] Proceed to Next Sector")
+    print("  [2] Type 'ENCRYPT' to re-encrypt back to original Ciphertext")
+    print("---------------------------------------------------------")
+    
+    choice = input("👉 Enter choice or type 'ENCRYPT': ").strip().upper()
+
+    if choice == "ENCRYPT" or choice == "2":
+        print("\n🔄 RE-ENCRYPTING DECRYPTED PHRASE BACK TO ORIGINAL CIPHERTEXT...")
+        re_encrypted = engine.re_encrypt_pairs(decrypted_pairs)
+        expected_comparison = formatted_user_cipher.replace('J', 'I')
+
+        print(f"\n🔒 RE-ENCRYPTED CIPHERTEXT: {re_encrypted}")
+        print(f"   (Matches Sector {sector_num} Input Ciphertext: '{expected_comparison}')")
+        print("=" * 65)
+        input("\nPress Enter to proceed to the next sector...")
+    else:
+        print(f"✅ SECTOR {sector_num} OVERRIDDEN SUCCESSFULLY!\n")
+
+
+if __name__ == "__main__":
+    print("=========================================================")
+    print(" OPERATION BLACKOUT: PLAYFAIR DECRYPT & ENCRYPT PROTOCOL")
+    print(" Presented By: Papara Deepthi | Reg No: 23MIS1154")
+    print("=========================================================")
+
+    # Copy riddle bank so we can pop selected riddles randomly without repetition
+    available_riddles = list(RIDDLE_BANK)
+
+    # Sector 1
+    run_sector_protocol(1, "VENT SHAFT", available_riddles)
+
+    # Sector 2 (Selects 1 random riddle from 10)
+    run_sector_protocol(2, "COMMAND CENTER", available_riddles)
+
+    # Sector 3 (Selects another random riddle from remaining 9)
+    run_sector_protocol(3, "MAIN BLAST EXIT", available_riddles)
+
+    print("🏆 " * 15)
+    print("FACILITY EVACUATED // MISSION COMPLETE!")
+    print("All 3 sectors decrypted, verified, and overridden successfully!")
+    print("🏆 " * 15)
